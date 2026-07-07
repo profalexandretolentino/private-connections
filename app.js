@@ -1,5 +1,13 @@
-// 1) Paste your Google Apps Script Web App URL here after deployment.
-const TRACKING_ENDPOINT = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+const CONFIG = {
+  appName: "Private Connections",
+  version: "0.1.0",
+  loadingDelay: 7000,
+  connectionDelay: 3300,
+  maxMessageLength: 180
+};
+
+// Paste your Google Apps Script Web App URL here after deployment.
+const TRACKING_ENDPOINT = "https://script.google.com/macros/s/AKfycbzy253oes6E7uHMoLoLUx_G5B2Qwn8R2-up3SFy04sCEzhpjMyl5XFysKmITsSBqHgx/exec"
 
 const $ = (id) => document.getElementById(id);
 
@@ -15,11 +23,24 @@ const screens = [
 const video = $("mainVideo");
 const progressMarks = new Set();
 
-const visitorId = localStorage.getItem("pj8_visitor_id") || crypto.randomUUID();
-localStorage.setItem("pj8_visitor_id", visitorId);
+const visitorId = localStorage.getItem("pc_visitor_id") || crypto.randomUUID();
+localStorage.setItem("pc_visitor_id", visitorId);
 
 function show(screenId) {
-  screens.forEach((id) => $(id).classList.toggle("active", id === screenId));
+  screens.forEach((id) => {
+    $(id).classList.toggle("active", id === screenId);
+  });
+}
+
+function formatConnectionDate(date = new Date()) {
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  });
 }
 
 function track(eventName, extra = {}) {
@@ -29,21 +50,64 @@ function track(eventName, extra = {}) {
   }
 
   const params = new URLSearchParams({
+    appName: CONFIG.appName,
+    version: CONFIG.version,
     event: eventName,
     visitorId,
     page: location.href,
     userAgent: navigator.userAgent,
     language: navigator.language,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    ...extra,
+    ...extra
   });
 
-  // Image beacon avoids CORS problems on GitHub Pages.
   const img = new Image();
   img.src = `${TRACKING_ENDPOINT}?${params.toString()}`;
 }
 
-window.addEventListener("load", () => track("page_opened"));
+function renderMemoryItem(memory) {
+  const historyList = $("historyList");
+
+  const item = document.createElement("div");
+  item.className = "history-item";
+
+  item.innerHTML = `
+    <strong>${memory.date}</strong>
+    <span>❤️ ${memory.title}</span>
+    <small>${memory.message}</small>
+    <small>📎 ${memory.attachment}</small>
+  `;
+
+  historyList.prepend(item);
+}
+
+function getAttachmentLabel(file) {
+  if (!file) return "No attachment";
+
+  if (file.type.startsWith("image/")) return "📷 Image received";
+  if (file.type.startsWith("video/")) return "🎥 Video received";
+  if (file.type.startsWith("audio/")) return "🎵 Audio received";
+
+  return "File received";
+}
+
+function addLocalMemoryPreview() {
+  const heartMessage =
+    $("heartMessage")?.value.trim() || "Connection requested.";
+
+  const heartFile = $("heartFile")?.files?.[0];
+
+  renderMemoryItem({
+    date: formatConnectionDate(),
+    title: "Private connection",
+    message: `“${heartMessage}”`,
+    attachment: getAttachmentLabel(heartFile)
+  });
+}
+
+window.addEventListener("load", () => {
+  track("page_opened");
+});
 
 $("startBtn").addEventListener("click", () => {
   track("start_clicked");
@@ -56,14 +120,14 @@ $("skipBtn").addEventListener("click", () => {
   show("finalGift");
 });
 
-video.addEventListener("play", () => track("video_started"));
+video.addEventListener("play", () => {
+  track("video_started");
+});
 
 video.addEventListener("ended", () => {
   track("video_ended");
   show("finalGift");
 });
-
-
 
 video.addEventListener("timeupdate", () => {
   if (!video.duration) return;
@@ -73,6 +137,7 @@ video.addEventListener("timeupdate", () => {
   [25, 50, 75, 95].forEach((mark) => {
     if (pct >= mark && !progressMarks.has(mark)) {
       progressMarks.add(mark);
+
       track(`video_${mark}_percent`, {
         seconds: Math.round(video.currentTime)
       });
@@ -92,21 +157,22 @@ $("connectBtn").addEventListener("click", () => {
     fileSize: heartFile ? heartFile.size : ""
   });
 
+  addLocalMemoryPreview();
   show("loading");
   runConnectionSequence();
 });
 
 $("tryAgainBtn").addEventListener("click", () => {
+  track("experience_restarted");
 
-    track("experience_restarted");
+  video.pause();
+  video.currentTime = 0;
+  progressMarks.clear();
 
-    video.pause();
-    video.currentTime = 0;
+  $("heartMessage").value = "";
+  $("heartFile").value = "";
 
-    progressMarks.clear();
-
-    show("intro");
-
+  show("intro");
 });
 
 function runConnectionSequence() {
@@ -122,7 +188,7 @@ function runConnectionSequence() {
     ["Passing through the Philippines...", "Route found: attempting to establish connection", 75],
     ["Searching Alexandre instance...", "Status: Alexandre located", 86],
     ["Sending connection request...", "Request delivered", 92],
-    ["Waiting for response...", "Do not close this window", 100],
+    ["Waiting for response...", "Do not close this window", 100]
   ];
 
   logs.innerHTML = "";
@@ -147,9 +213,9 @@ function runConnectionSequence() {
 
         setTimeout(() => {
           show("connectionHistory");
-        }, 7000);
+        }, CONFIG.loadingDelay);
 
-      }, 3300);
+      }, CONFIG.connectionDelay);
     }
-  }, 3300);
+  }, CONFIG.connectionDelay);
 }
