@@ -145,11 +145,14 @@ video.addEventListener("timeupdate", () => {
   });
 });
 
-$("connectBtn").addEventListener("click", () => {
+$("connectBtn").addEventListener("click", async () => {
   const heartMessage = $("heartMessage")?.value.trim() || "";
   const heartFile = $("heartFile")?.files?.[0];
 
-  track("connect_clicked", {
+  addLocalMemoryPreview();
+  show("loading");
+
+  const result = await sendConnectionRequest({
     message: heartMessage,
     hasFile: heartFile ? "yes" : "no",
     fileName: heartFile ? heartFile.name : "",
@@ -157,8 +160,12 @@ $("connectBtn").addEventListener("click", () => {
     fileSize: heartFile ? heartFile.size : ""
   });
 
-  addLocalMemoryPreview();
-  show("loading");
+  if (result && result.status === "success") {
+    $("totalConnections").textContent = result.totalConnections ?? "--";
+    $("firstConnection").textContent = result.firstConnection ?? "--";
+    $("lastConnection").textContent = result.lastConnection ?? "--";
+  }
+
   runConnectionSequence();
 });
 
@@ -218,4 +225,31 @@ function runConnectionSequence() {
       }, CONFIG.connectionDelay);
     }
   }, CONFIG.connectionDelay);
+}
+
+async function sendConnectionRequest(extra = {}) {
+  if (!TRACKING_ENDPOINT || TRACKING_ENDPOINT.includes("PASTE_YOUR")) {
+    console.log("CONNECT", extra);
+    return null;
+  }
+
+  const params = new URLSearchParams({
+    appName: CONFIG.appName,
+    version: CONFIG.version,
+    event: "connect_clicked",
+    visitorId,
+    page: location.href,
+    userAgent: navigator.userAgent,
+    language: navigator.language,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    ...extra
+  });
+
+  try {
+    const response = await fetch(`${TRACKING_ENDPOINT}?${params.toString()}`);
+    return await response.json();
+  } catch (error) {
+    console.error("Connection request failed:", error);
+    return null;
+  }
 }
