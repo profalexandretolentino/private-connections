@@ -9,8 +9,8 @@ Created with ❤️
 - `style.css` — visual design
 - `app.js` — screen flow + tracking
 - `Code.gs` — Google Apps Script backend
-- `assets/placeholder.mp4` — replace with final video
-- `assets/poster.jpg` — optional video poster
+- `assets/video/01-video.mp4` — replace with final video
+- `assets/poster/01-poster.jpg` — optional video poster
 
 ## Quick setup
 1. Create a GitHub repository.
