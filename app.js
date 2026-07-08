@@ -112,7 +112,6 @@ window.addEventListener("load", () => {
 $("startBtn").addEventListener("click", () => {
   track("start_clicked");
   show("videoScreen");
-  video.play().catch(() => {});
 });
 
 $("skipBtn").addEventListener("click", () => {
