@@ -1,13 +1,14 @@
 const CONFIG = {
   appName: "Private Connections",
-  version: "0.1.0",
+  version: "0.2.0",
   loadingDelay: 7000,
   connectionDelay: 3300,
-  maxMessageLength: 180
+  maxMessageLength: 180,
+  maxFileSize: 8 * 1024 * 1024
 };
 
-// Paste your Google Apps Script Web App URL here after deployment.
-const TRACKING_ENDPOINT = "https://script.google.com/macros/s/AKfycbzy253oes6E7uHMoLoLUx_G5B2Qwn8R2-up3SFy04sCEzhpjMyl5XFysKmITsSBqHgx/exec"
+const TRACKING_ENDPOINT =
+  "https://script.google.com/macros/s/AKfycbz9Hs01tluXk4-Pjry3YoUNucDhIvlLxgud9bQ5TnA3S9eYwZ8OPGBMnjE0qTVhx6O5/exec";
 
 const $ = (id) => document.getElementById(id);
 
@@ -23,12 +24,17 @@ const screens = [
 const video = $("mainVideo");
 const progressMarks = new Set();
 
-const visitorId = localStorage.getItem("pc_visitor_id") || crypto.randomUUID();
+const visitorId =
+  localStorage.getItem("pc_visitor_id") || crypto.randomUUID();
+
 localStorage.setItem("pc_visitor_id", visitorId);
 
 function show(screenId) {
   screens.forEach((id) => {
-    $(id).classList.toggle("active", id === screenId);
+    const screen = $(id);
+    if (screen) {
+      screen.classList.toggle("active", id === screenId);
+    }
   });
 }
 
@@ -61,21 +67,22 @@ function track(eventName, extra = {}) {
     ...extra
   });
 
-  const img = new Image();
-  img.src = `${TRACKING_ENDPOINT}?${params.toString()}`;
+  const beacon = new Image();
+  beacon.src = `${TRACKING_ENDPOINT}?${params.toString()}`;
 }
 
 function renderMemoryItem(memory) {
   const historyList = $("historyList");
+  if (!historyList) return;
 
   const item = document.createElement("div");
   item.className = "history-item";
 
   item.innerHTML = `
-    <strong>${memory.date}</strong>
-    <span>❤️ ${memory.title}</span>
-    <small>${memory.message}</small>
-    <small>📎 ${memory.attachment}</small>
+    <strong>${escapeHtml(memory.date)}</strong>
+    <span>❤️ ${escapeHtml(memory.title)}</span>
+    <small>${escapeHtml(memory.message)}</small>
+    <small>📎 ${escapeHtml(memory.attachment)}</small>
   `;
 
   historyList.prepend(item);
@@ -95,7 +102,7 @@ function addLocalMemoryPreview() {
   const heartMessage =
     $("heartMessage")?.value.trim() || "Connection requested.";
 
-  const heartFile = $("heartFile")?.files?.[0];
+  const heartFile = $("heartFile")?.files?.[0] || null;
 
   renderMemoryItem({
     date: formatConnectionDate(),
@@ -105,81 +112,101 @@ function addLocalMemoryPreview() {
   });
 }
 
-window.addEventListener("load", () => {
-  track("page_opened");
-});
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
-$("startBtn").addEventListener("click", () => {
-  track("start_clicked");
-  show("videoScreen");
-});
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
 
-$("skipBtn").addEventListener("click", () => {
-  track("video_skipped");
-  show("finalGift");
-});
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      const base64 = result.includes(",") ? result.split(",")[1] : result;
+      resolve(base64);
+    };
 
-video.addEventListener("play", () => {
-  track("video_started");
-});
+    reader.onerror = () => {
+      reject(new Error("The selected file could not be read."));
+    };
 
-video.addEventListener("ended", () => {
-  track("video_ended");
-  show("finalGift");
-});
-
-video.addEventListener("timeupdate", () => {
-  if (!video.duration) return;
-
-  const pct = Math.floor((video.currentTime / video.duration) * 100);
-
-  [25, 50, 75, 95].forEach((mark) => {
-    if (pct >= mark && !progressMarks.has(mark)) {
-      progressMarks.add(mark);
-
-      track(`video_${mark}_percent`, {
-        seconds: Math.round(video.currentTime)
-      });
-    }
+    reader.readAsDataURL(file);
   });
-});
+}
 
-$("connectBtn").addEventListener("click", async () => {
-  const heartMessage = $("heartMessage")?.value.trim() || "";
-  const heartFile = $("heartFile")?.files?.[0];
-
-  addLocalMemoryPreview();
-  show("loading");
-
-  const result = await sendConnectionRequest({
-    message: heartMessage,
-    hasFile: heartFile ? "yes" : "no",
-    fileName: heartFile ? heartFile.name : "",
-    fileType: heartFile ? heartFile.type : "",
-    fileSize: heartFile ? heartFile.size : ""
-  });
-
-  if (result && result.status === "success") {
-    $("totalConnections").textContent = result.totalConnections ?? "--";
-    $("firstConnection").textContent = result.firstConnection ?? "--";
-    $("lastConnection").textContent = result.lastConnection ?? "--";
+async function sendConnectionRequest({ message = "", file = null } = {}) {
+  if (!TRACKING_ENDPOINT || TRACKING_ENDPOINT.includes("PASTE_YOUR")) {
+    console.log("CONNECT", { message, file });
+    return null;
   }
 
-  runConnectionSequence();
-});
+  let attachment = null;
 
-$("tryAgainBtn").addEventListener("click", () => {
-  track("experience_restarted");
+  if (file) {
+    attachment = {
+      originalName: file.name,
+      mimeType: file.type || "application/octet-stream",
+      size: file.size,
+      base64: await fileToBase64(file)
+    };
+  }
 
-  video.pause();
-  video.currentTime = 0;
-  progressMarks.clear();
+  const payload = {
+    appName: CONFIG.appName,
+    version: CONFIG.version,
+    event: "connect_clicked",
+    visitorId,
+    page: location.href,
+    userAgent: navigator.userAgent,
+    language: navigator.language,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    message,
+    attachment
+  };
 
-  $("heartMessage").value = "";
-  $("heartFile").value = "";
+  try {
+    const response = await fetch(TRACKING_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload)
+    });
 
-  show("intro");
-});
+    const text = await response.text();
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      console.error("Invalid backend response:", text);
+      return null;
+    }
+  } catch (error) {
+    console.error("Connection request failed:", error);
+    return null;
+  }
+}
+
+function updateDashboard(result) {
+  if (!result || result.status !== "success") return;
+
+  if ($("totalConnections")) {
+    $("totalConnections").textContent = result.totalConnections ?? "--";
+  }
+
+  if ($("firstConnection")) {
+    $("firstConnection").textContent = result.firstConnection ?? "--";
+  }
+
+  if ($("lastConnection")) {
+    $("lastConnection").textContent = result.lastConnection ?? "--";
+  }
+}
 
 function runConnectionSequence() {
   const logs = $("logs");
@@ -200,18 +227,18 @@ function runConnectionSequence() {
   logs.innerHTML = "";
   bar.style.width = "0%";
 
-  let i = 0;
+  let index = 0;
 
   const timer = setInterval(() => {
-    const [main, detail, progress] = steps[i];
+    const [main, detail, progress] = steps[index];
 
     line.textContent = main;
-    logs.innerHTML += `<div>✓ ${detail}</div>`;
+    logs.innerHTML += `<div>✓ ${escapeHtml(detail)}</div>`;
     bar.style.width = `${progress}%`;
 
-    i++;
+    index += 1;
 
-    if (i >= steps.length) {
+    if (index >= steps.length) {
       clearInterval(timer);
 
       setTimeout(() => {
@@ -220,35 +247,109 @@ function runConnectionSequence() {
         setTimeout(() => {
           show("connectionHistory");
         }, CONFIG.loadingDelay);
-
       }, CONFIG.connectionDelay);
     }
   }, CONFIG.connectionDelay);
 }
 
-async function sendConnectionRequest(extra = {}) {
-  if (!TRACKING_ENDPOINT || TRACKING_ENDPOINT.includes("PASTE_YOUR")) {
-    console.log("CONNECT", extra);
-    return null;
+window.addEventListener("load", () => {
+  track("page_opened");
+});
+
+$("startBtn")?.addEventListener("click", () => {
+  track("start_clicked");
+  show("videoScreen");
+});
+
+$("skipBtn")?.addEventListener("click", () => {
+  track("video_skipped");
+  show("finalGift");
+});
+
+video?.addEventListener("play", () => {
+  track("video_started");
+});
+
+video?.addEventListener("ended", () => {
+  track("video_ended");
+  show("finalGift");
+});
+
+video?.addEventListener("timeupdate", () => {
+  if (!video.duration) return;
+
+  const percentage = Math.floor((video.currentTime / video.duration) * 100);
+
+  [25, 50, 75, 95].forEach((mark) => {
+    if (percentage >= mark && !progressMarks.has(mark)) {
+      progressMarks.add(mark);
+      track(`video_${mark}_percent`, {
+        seconds: Math.round(video.currentTime)
+      });
+    }
+  });
+});
+
+$("connectBtn")?.addEventListener("click", async () => {
+  const connectButton = $("connectBtn");
+  const heartMessage = $("heartMessage")?.value.trim() || "";
+  const heartFile = $("heartFile")?.files?.[0] || null;
+
+  if (heartMessage.length > CONFIG.maxMessageLength) {
+    alert(`Please keep your message under ${CONFIG.maxMessageLength} characters.`);
+    return;
   }
 
-  const params = new URLSearchParams({
-    appName: CONFIG.appName,
-    version: CONFIG.version,
-    event: "connect_clicked",
-    visitorId,
-    page: location.href,
-    userAgent: navigator.userAgent,
-    language: navigator.language,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    ...extra
-  });
+  if (heartFile && heartFile.size > CONFIG.maxFileSize) {
+    alert("Please choose a file smaller than 8 MB.");
+    return;
+  }
+
+  connectButton.disabled = true;
+  connectButton.textContent = "SENDING...";
+
+  show("loading");
+
+  let result = null;
 
   try {
-    const response = await fetch(`${TRACKING_ENDPOINT}?${params.toString()}`);
-    return await response.json();
+    result = await sendConnectionRequest({
+      message: heartMessage,
+      file: heartFile
+    });
   } catch (error) {
-    console.error("Connection request failed:", error);
-    return null;
+    console.error("Upload error:", error);
   }
-}
+
+  connectButton.disabled = false;
+  connectButton.textContent = "CONNECT";
+
+  if (!result || result.status !== "success") {
+    console.error("Connection failed:", result);
+    alert("The connection could not be sent. Please try again.");
+    show("finalGift");
+    return;
+  }
+
+  addLocalMemoryPreview();
+  updateDashboard(result);
+  runConnectionSequence();
+});
+
+$("tryAgainBtn")?.addEventListener("click", () => {
+  track("experience_restarted");
+
+  video.pause();
+  video.currentTime = 0;
+  progressMarks.clear();
+
+  if ($("heartMessage")) {
+    $("heartMessage").value = "";
+  }
+
+  if ($("heartFile")) {
+    $("heartFile").value = "";
+  }
+
+  show("intro");
+});
