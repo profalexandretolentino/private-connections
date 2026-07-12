@@ -1,13 +1,27 @@
-const CONFIG = {
+export const CONFIG = {
+  appName: "Private Connections",
+  version: "1.0.0",
 
-    appName: "Private Connections",
+  endpoint:
+    "https://script.google.com/macros/s/AKfycbzfjkNOdkJjQA7odzKXIHOLLlJA8XuP6Lx6b_2Du8KsN-RGxpMaOrBKa97jlPWIBtjiLA/exec",
 
-    version: "0.1.0",
+  loadingDelay: 7000,
+  connectionDelay: 3300,
 
-    loadingDelay: 7000,
+  maxMessageLength: 180,
+  maxFileSize: 8 * 1024 * 1024,
 
-    connectionDelay: 3300,
+  historyLimit: 6,
+  dashboardRefreshDelay: 1500,
 
-    maxMessageLength: 180
+  progressMarks: [25, 50, 75, 95],
 
+  screens: [
+    "intro",
+    "videoScreen",
+    "finalGift",
+    "loading",
+    "connected",
+    "connectionHistory"
+  ]
 };
