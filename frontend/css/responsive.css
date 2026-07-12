@@ -1,0 +1,83 @@
+@media (max-width: 720px) {
+  .app {
+    padding: 16px;
+  }
+
+  .terminal {
+    padding: 26px 20px;
+  }
+
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-item {
+    padding: 16px;
+  }
+
+  video {
+    max-height: 68vh;
+  }
+
+  .primary,
+  .ghost {
+    width: 100%;
+  }
+
+  #tryAgainBtn {
+    width: fit-content;
+    min-width: 220px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .app {
+    padding:
+      max(12px, env(safe-area-inset-top))
+      12px
+      max(12px, env(safe-area-inset-bottom));
+  }
+
+  h1 {
+    font-size: clamp(40px, 15vw, 62px);
+  }
+
+  h2 {
+    font-size: clamp(28px, 10vw, 42px);
+  }
+
+  .video-card,
+  .terminal {
+    border-radius: 22px;
+  }
+
+  .video-card {
+    padding: 10px;
+  }
+
+  video {
+    border-radius: 14px;
+  }
+
+  textarea {
+    min-height: 130px;
+  }
+
+  .logs {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 1ms !important;
+  }
+}

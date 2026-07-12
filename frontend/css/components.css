@@ -1,0 +1,419 @@
+.badge {
+  display: inline-block;
+
+  margin-bottom: 28px;
+  padding: 8px 14px;
+
+  border: 1px solid var(--line);
+  border-radius: 999px;
+
+  color: var(--accent);
+
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.primary,
+.ghost {
+  margin-top: 28px;
+  padding: 16px 28px;
+
+  border-radius: 999px;
+
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+
+  cursor: pointer;
+
+  transition:
+    transform var(--transition-fast),
+    opacity var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.primary {
+  border: 0;
+
+  background: var(--accent);
+  color: #07100c;
+
+  box-shadow:
+    0 0 30px rgba(89, 255, 183, 0.22);
+}
+
+.ghost {
+  border: 1px solid var(--line);
+
+  background: transparent;
+  color: var(--text);
+}
+
+.primary:hover,
+.ghost:hover {
+  transform: translateY(-2px);
+}
+
+.primary:focus-visible,
+.ghost:focus-visible,
+textarea:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.primary:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.pulse {
+  animation:
+    pulse 1.8s ease-in-out infinite;
+}
+
+.video-card,
+.terminal {
+  padding: 18px;
+
+  border: 1px solid var(--line);
+  border-radius: var(--radius-large);
+
+  background: var(--panel);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow: var(--shadow-panel);
+}
+
+video {
+  display: block;
+
+  width: 100%;
+  max-height: 72vh;
+
+  border-radius: var(--radius-medium);
+
+  background: var(--black);
+}
+
+.terminal {
+  padding: clamp(26px, 5vw, 54px);
+  text-align: left;
+}
+
+.terminal h2,
+.terminal p {
+  text-align: left;
+}
+
+.mono,
+.logs {
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono",
+    monospace;
+}
+
+.muted {
+  color: var(--accent);
+
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.small {
+  font-size: 15px;
+}
+
+textarea {
+  display: block;
+
+  width: 100%;
+  min-height: 110px;
+
+  margin-top: 22px;
+  padding: 16px;
+
+  resize: vertical;
+
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+
+  background:
+    rgba(0, 0, 0, 0.22);
+
+  color: var(--text);
+
+  line-height: 1.5;
+
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+textarea::placeholder {
+  color: var(--muted);
+}
+
+textarea:focus {
+  border-color: var(--accent);
+  background:
+    rgba(0, 0, 0, 0.32);
+}
+
+.attachment-field {
+  margin-top: 26px;
+}
+
+.attachment-field > label {
+  display: block;
+
+  margin-bottom: 12px;
+
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+input[type="file"] {
+  display: block;
+
+  width: 100%;
+
+  padding: 12px;
+
+  border: 1px solid var(--line);
+  border-radius: var(--radius-small);
+
+  background:
+    rgba(0, 0, 0, 0.22);
+
+  color: var(--muted);
+}
+
+input[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 10px 16px;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: var(--accent);
+  color: #07100c;
+
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.progress {
+  width: 100%;
+  height: 10px;
+
+  margin: 28px 0;
+
+  overflow: hidden;
+
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.progress span {
+  display: block;
+
+  width: 0%;
+  height: 100%;
+
+  background: var(--accent);
+
+  transition:
+    width var(--transition-normal);
+}
+
+.logs {
+  color: var(--muted);
+
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.success h2 {
+  color: var(--accent);
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-bottom: 38px;
+}
+
+.dashboard-item {
+  min-width: 0;
+
+  padding: 18px;
+
+  border: 1px solid var(--line);
+  border-radius: var(--radius-medium);
+
+  background:
+    rgba(255, 255, 255, 0.035);
+}
+
+.dashboard .label {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: var(--muted);
+
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dashboard strong {
+  display: block;
+
+  color: var(--text);
+
+  font-size: clamp(18px, 2vw, 25px);
+  overflow-wrap: anywhere;
+}
+
+.connection-log {
+  margin-top: 20px;
+}
+
+.history-list {
+  display: grid;
+  gap: 14px;
+
+  margin-top: 18px;
+}
+
+.history-item {
+  display: grid;
+  gap: 7px;
+
+  padding: 18px;
+
+  border: 1px solid var(--line);
+  border-radius: var(--radius-medium);
+
+  background:
+    rgba(255, 255, 255, 0.035);
+}
+
+.history-item strong {
+  color: var(--accent);
+}
+
+.history-item span {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.history-item small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.heart-message {
+  margin-top: 26px;
+  text-align: center !important;
+}
+
+#tryAgainBtn {
+  display: block;
+  width: fit-content;
+  margin: 28px auto 0;
+}
+
+.history-list {
+  display: grid;
+  gap: 10px;
+
+  max-height: 360px;
+  margin-top: 18px;
+  padding-right: 8px;
+
+  overflow-y: auto;
+}
+
+.history-item.compact {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 14px 16px;
+}
+
+.history-icon {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+
+  border: 1px solid var(--line);
+  border-radius: 50%;
+
+  background:
+    rgba(89, 255, 183, 0.08);
+
+  font-size: 20px;
+}
+
+.history-content {
+  display: grid;
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.history-content strong {
+  color: var(--text);
+  font-size: 15px;
+}
+
+.history-content small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.history-empty {
+  padding: 24px;
+
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-medium);
+
+  text-align: center !important;
+}
+
+.history-list::-webkit-scrollbar {
+  width: 7px;
+}
+
+.history-list::-webkit-scrollbar-track {
+  background:
+    rgba(255, 255, 255, 0.03);
+
+  border-radius: 999px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 999px;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
