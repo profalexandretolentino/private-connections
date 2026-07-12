@@ -4,7 +4,7 @@
  * Config.gs
  * ==========================================
  */
- 
+
 const SCRIPT_PROPERTIES =
   PropertiesService.getScriptProperties();
 
@@ -12,6 +12,14 @@ const CONFIG = {
   environment:
     SCRIPT_PROPERTIES.getProperty("ENVIRONMENT") ||
     "development",
+
+  appUrl:
+    SCRIPT_PROPERTIES.getProperty("APP_URL") ||
+    "",
+
+  allowedOrigin:
+    SCRIPT_PROPERTIES.getProperty("ALLOWED_ORIGIN") ||
+    "",
 
   spreadsheetId:
     SCRIPT_PROPERTIES.getProperty("SPREADSHEET_ID") ||
@@ -48,6 +56,9 @@ const CONFIG = {
 
 function validateConfiguration() {
   const requiredProperties = [
+    "environment",
+    "appUrl",
+    "allowedOrigin",
     "spreadsheetId",
     "storageFolderId",
     "emailTo",

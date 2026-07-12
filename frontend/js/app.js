@@ -22,9 +22,17 @@ const visitorId = getVisitorId();
 const video = $("mainVideo");
 const progressMarks = new Set();
 
+console.info(
+  `[Private Connections] ${CONFIG.environment}`
+);
+
+console.info(
+  `[Private Connections] Backend: ${CONFIG.backendUrl}`
+);
+
 function track(eventName, extra = {}) {
   trackEvent({
-    endpoint: CONFIG.endpoint,
+    endpoint: CONFIG.backendUrl,
     appName: CONFIG.appName,
     version: CONFIG.version,
     eventName,
@@ -36,7 +44,7 @@ function track(eventName, extra = {}) {
 async function refreshDashboard() {
   try {
     const dashboard = await loadDashboard({
-      endpoint: CONFIG.endpoint,
+      endpoint: CONFIG.backendUrl,
       visitorId,
       limit: CONFIG.historyLimit
     });
@@ -126,7 +134,7 @@ $("connectBtn").addEventListener("click", async () => {
     );
 
     await sendConnectionRequest({
-      endpoint: CONFIG.endpoint,
+      endpoint: CONFIG.backendUrl,
       appName: CONFIG.appName,
       version: CONFIG.version,
       visitorId,

@@ -231,6 +231,7 @@ export function renderDashboardHistory(history) {
 
       <div class="history-content">
         <strong>
+          Memory #${escapeHtml(memory.number)} ·
           ${escapeHtml(memory.title)}
         </strong>
 

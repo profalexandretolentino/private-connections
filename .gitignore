@@ -57,3 +57,8 @@ Desktop.ini
 # ==========================================
 .vscode/
 !.vscode/extensions.json
+
+# ==========================================
+# Apps Script local secrets
+# ==========================================
+backend/apps-script/script-properties-env.md

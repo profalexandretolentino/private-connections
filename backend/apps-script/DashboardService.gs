@@ -59,20 +59,23 @@ function getPublicDashboard(visitorId, limit) {
     20
   );
 
-  const history = connections
-    .slice(-safeLimit)
-    .reverse()
-    .map((connection) => ({
-      date: formatDate(connection.timestamp),
-      title: getPublicMemoryTitle(
-        connection.attachmentType
-      ),
-      attachmentType:
-        connection.attachmentType,
-      icon: getAttachmentIcon(
-        connection.attachmentType
-      )
-    }));
+const totalConnections = connections.length;
+
+const history = connections
+  .slice(-safeLimit)
+  .reverse()
+  .map((connection, index) => ({
+    number: totalConnections - index,
+    date: formatDate(connection.timestamp),
+    title: getPublicMemoryTitle(
+      connection.attachmentType
+    ),
+    attachmentType:
+      connection.attachmentType,
+    icon: getAttachmentIcon(
+      connection.attachmentType
+    )
+  }));
 
   return {
     totalConnections: connections.length,
