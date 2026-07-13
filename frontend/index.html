@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <meta
+    name="description"
+    content="Private Connections — a private bridge between Brazil and Japan."
+  />
+
+  <link
+    rel="icon"
+    href="assets/img/favicon.svg"
+    type="image/svg+xml"
+  />
+
+  <meta
+    name="theme-color"
+    content="#07090d"
+  />
+
+  <title>Private Connections</title>
+
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+
+<body>
+  <main class="app">
+
+    <!-- INTRO -->
+    <section
+      id="intro"
+      class="screen active"
+      aria-labelledby="introTitle"
+    >
+      <div class="badge">
+        Brazil ↔ Japan
+      </div>
+
+      <h1 id="introTitle">
+        Private Connections
+      </h1>
+
+      <p class="subtitle">
+        With every connection, a new experience just for you.
+      </p>
+
+      <button
+        id="startBtn"
+        class="primary"
+        type="button"
+      >
+        START
+      </button>
+    </section>
+
+    <!-- VIDEO -->
+    <section
+      id="videoScreen"
+      class="screen"
+      aria-labelledby="videoTitle"
+    >
+      <h2 id="videoTitle" class="sr-only">
+        Private Connections video
+      </h2>
+
+      <div class="video-card">
+        <video
+          id="mainVideo"
+          controls
+          playsinline
+          preload="metadata"
+          poster="assets/poster/01-poster.png"
+        >
+          <source
+            src="assets/video/01-video.mp4"
+            type="video/mp4"
+          />
+
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <button
+        id="skipBtn"
+        class="ghost"
+        type="button"
+      >
+        Skip to final gift
+      </button>
+    </section>
+
+    <!-- FINAL GIFT -->
+    <section
+      id="finalGift"
+      class="screen"
+      aria-labelledby="finalGiftTitle"
+    >
+      <div class="terminal">
+        <p class="muted">
+          Private Connections
+        </p>
+
+        <h2 id="finalGiftTitle">
+          A private channel is ready.
+        </h2>
+
+        <p>
+          Leave a little signal before connecting,
+          only if your heart wants to.
+        </p>
+
+        <label
+          class="sr-only"
+          for="heartMessage"
+        >
+          Leave a short message
+        </label>
+
+        <textarea
+          id="heartMessage"
+          maxlength="180"
+          rows="4"
+          placeholder="A few words are enough..."
+        ></textarea>
+
+        <div class="attachment-field">
+          <label for="heartFile">
+            Add a small memory, only if you want
+          </label>
+
+          <input
+            id="heartFile"
+            type="file"
+            accept="
+              image/png,
+              image/jpeg,
+              image/webp,
+              video/mp4,
+              video/webm,
+              audio/mpeg,
+              audio/mp4,
+              audio/wav,
+              audio/ogg
+            "
+          />
+
+          <p class="small">
+            You may send one image, one short video, or one audio.
+          </p>
+        </div>
+
+        <button
+          id="connectBtn"
+          class="primary pulse"
+          type="button"
+        >
+          CONNECT
+        </button>
+      </div>
+    </section>
+
+    <!-- LOADING -->
+    <section
+      id="loading"
+      class="screen"
+      aria-labelledby="loadingLine"
+      aria-live="polite"
+    >
+      <div class="terminal">
+        <p
+          id="loadingLine"
+          class="mono"
+        >
+          Loading your private connection...
+        </p>
+
+        <div
+          class="progress"
+          role="progressbar"
+          aria-label="Connection progress"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <span id="progressBar"></span>
+        </div>
+
+        <div
+          id="logs"
+          class="logs"
+          aria-live="polite"
+        ></div>
+      </div>
+    </section>
+
+    <!-- CONNECTION SENT -->
+    <section
+      id="connected"
+      class="screen"
+      aria-labelledby="connectedTitle"
+    >
+      <div class="terminal success">
+        <p class="muted">
+          Connection Status
+        </p>
+
+        <h2 id="connectedTitle">
+          Connection request sent.
+        </h2>
+
+        <p>
+          Something special may happen...
+        </p>
+      </div>
+    </section>
+
+    <!-- CONNECTION HISTORY -->
+    <section
+      id="connectionHistory"
+      class="screen"
+      aria-labelledby="historyTitle"
+    >
+      <div class="terminal success">
+
+        <h2 id="historyTitle" class="sr-only">
+          Private connection history
+        </h2>
+
+        <div class="dashboard">
+          <div class="dashboard-item">
+            <span class="label">
+              Total connections
+            </span>
+
+            <strong id="totalConnections">
+              --
+            </strong>
+          </div>
+
+          <div class="dashboard-item">
+            <span class="label">
+              First connection
+            </span>
+
+            <strong id="firstConnection">
+              --
+            </strong>
+          </div>
+
+          <div class="dashboard-item">
+            <span class="label">
+              Last connection
+            </span>
+
+            <strong id="lastConnection">
+              --
+            </strong>
+          </div>
+        </div>
+
+        <div class="connection-log">
+          <p class="muted">
+            Private Memories
+          </p>
+
+          <div
+            id="historyList"
+            class="history-list"
+          ></div>
+        </div>
+
+        <hr />
+
+        <p class="small heart-message">
+          This connection will remain available
+          whenever your heart needs it.
+        </p>
+
+        <button
+          id="tryAgainBtn"
+          class="ghost"
+          type="button"
+        >
+          Experience Again ❤️
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <script
+    type="module"
+    src="./js/app.js"
+  ></script>
+</body>
+</html>
